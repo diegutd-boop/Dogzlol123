@@ -1,0 +1,39 @@
+<!doctype"||$("play").classList.contains("hidden"))return;if(state==="ready")state="run";if(state==="run")vy=-6.2}
+cv.addEventListener("pointerdown",e=>{e.preventDefault();flap()});
+document.addEventListener("keydown",e=>{if((e.code==="Space"||e.code==="ArrowUp")&&mode==="flappy"&&!$("play").classList.contains("hidden")){e.preventDefault();flap()}});
+function loop(t){raf=requestAnimationFrame(loop);const dt=Math.min(2,(t-last)/16.67||1);last=t;if(state==="run")step(dt);draw()}
+function step(dt){
+  vy=Math.min(8,vy+.34*dt);by+=vy*dt;wx-=2.3*dt;
+  const bh=PH/nb;
+  if(by+R>PH||by-R<0)return crash();
+  if(wx<BX+R&&wx+WW>BX-R){const top=Math.floor(by/bh)*bh+(bh-GAP)/2;if(by-R<top||by+R>top+GAP)return crash()}
+  if(wx+WW<BX-R)pick(Math.min(nb-1,Math.floor(by/bh)));
+}
+function crash(){
+  lives--;hud();fb("Ouch! Fly through a gap.",0);
+  if(lives<=0){state="pause";tm=setTimeout(finish,900)}else resetBird();
+}
+function pick(i){
+  state="pause";const ok=opts[i].toLowerCase()===cur.a.toLowerCase();
+  if(ok){score+=10;fb("Correct! +10",1)}else{lives--;missed.push(cur);fb("Not quite. Answer: "+cur.a,0)}
+  hud();tm=setTimeout(()=>lives<=0?finish():nextQ(),ok?700:1500);
+}
+function draw(){
+  const g=cx.createLinearGradient(0,0,0,H);g.addColorStop(0,"#bfe9ff");g.addColorStop(1,"#fff1c9");
+  cx.fillStyle=g;cx.fillRect(0,0,W,H);
+  const bh=PH/nb;cx.textAlign="center";cx.textBaseline="middle";
+  for(let i=0;i<nb;i++){
+    const edge=(bh-GAP)/2,top=i*bh+edge;
+    cx.fillStyle=COL[i];cx.fillRect(wx,i*bh,WW,edge);cx.fillRect(wx,top+GAP,WW,edge);
+    cx.globalAlpha=.3;cx.fillRect(wx,top,WW,GAP);cx.globalAlpha=1;
+    cx.fillStyle="#1d1b3a";cx.font="900 34px sans-serif";cx.fillText(LET[i],wx+WW/2,top+GAP/2);
+  }
+  cx.fillStyle="#1d1b3a";cx.fillRect(0,PH,W,G);
+  cx.fillStyle="#ffb81f";cx.beginPath();cx.arc(BX,by,R,0,7);cx.fill();
+  cx.fillStyle="#ff6b5b";cx.fillRect(BX+R-3,by-2,10,6);
+  cx.fillStyle="#1d1b3a";cx.beginPath();cx.arc(BX+5,by-4,3,0,7);cx.fill();
+  if(state==="ready"){cx.font="800 22px sans-serif";cx.fillText("Tap to fly ↑",W/2,PH/2-60)}
+}
+</script>
+</body>
+</html>
